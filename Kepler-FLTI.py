@@ -3,11 +3,11 @@
 Kepler-FLTI.py - Illustrate using the Flux-Level Transit Injection (FLTI) Tests
     of TPS for Data Release 25.  The FLTI test output is in the FITs file
     format.  This code generates the figures in the documentation of FLTI
-    Burke, C.J. & Catanzarite, J. 2017, "Planet Detection Metrics: 
+    Burke, C.J. & Catanzarite, J. 2017, "Planet Detection Metrics:
        Per-Target Flux-Level Transit Injection Tests of TPS
        for Data Release 25", KSCI-19109-001
     Assumes python packages astropy, numpy, and matplotlib are available
-      and file kplr007702838_dr25_5008_flti.fits is available in the 
+      and file kplr007702838_dr25_5008_flti.fits is available in the
       same directory as Kepler-FLTI.py
     Invocation: python Kepler-FLTI.py
     Output: Displays a series of figures and generates hardcopy
@@ -24,7 +24,7 @@ Disclaimers
 No Warranty: THE SUBJECT SOFTWARE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY OF ANY KIND, EITHER EXPRESSED, IMPLIED, OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL CONFORM TO SPECIFICATIONS, ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR FREEDOM FROM INFRINGEMENT, ANY WARRANTY THAT THE SUBJECT SOFTWARE WILL BE ERROR FREE, OR ANY WARRANTY THAT DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE. THIS AGREEMENT DOES NOT, IN ANY MANNER, CONSTITUTE AN ENDORSEMENT BY GOVERNMENT AGENCY OR ANY PRIOR RECIPIENT OF ANY RESULTS, RESULTING DESIGNS, HARDWARE, SOFTWARE PRODUCTS OR ANY OTHER APPLICATIONS RESULTING FROM USE OF THE SUBJECT SOFTWARE.  FURTHER, GOVERNMENT AGENCY DISCLAIMS ALL WARRANTIES AND LIABILITIES REGARDING THIRD-PARTY SOFTWARE, IF PRESENT IN THE ORIGINAL SOFTWARE, AND DISTRIBUTES IT "AS IS."
 
 Waiver and Indemnity:  RECIPIENT AGREES TO WAIVE ANY AND ALL CLAIMS AGAINST THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT.  IF RECIPIENT'S USE OF THE SUBJECT SOFTWARE RESULTS IN ANY LIABILITIES, DEMANDS, DAMAGES, EXPENSES OR LOSSES ARISING FROM SUCH USE, INCLUDING ANY DAMAGES FROM PRODUCTS BASED ON, OR RESULTING FROM, RECIPIENT'S USE OF THE SUBJECT SOFTWARE, RECIPIENT SHALL INDEMNIFY AND HOLD HARMLESS THE UNITED STATES GOVERNMENT, ITS CONTRACTORS AND SUBCONTRACTORS, AS WELL AS ANY PRIOR RECIPIENT, TO THE EXTENT PERMITTED BY LAW.  RECIPIENT'S SOLE REMEDY FOR ANY SUCH MATTER SHALL BE THE IMMEDIATE, UNILATERAL TERMINATION OF THIS AGREEMENT.
- 
+
 """
 
 from astropy.io import fits
@@ -37,11 +37,11 @@ def show_basic_fits_data(hdulist):
     #Fits file info
     hdulist.info()
     #Primary Header
-    print repr(hdulist[0].header)
+    print(repr(hdulist[0].header))
     #Data Table Header
-    print repr(hdulist[1].header)
+    print(repr(hdulist[1].header))
     return
-    
+
 def show_empirical_detection_contour(hdulist):
     """Calculate empirical detection contour based upon
         FLTI output.  Also
@@ -51,7 +51,7 @@ def show_empirical_detection_contour(hdulist):
     injPeriod = np.log10(fltidata.field('Period'))
     injRp = np.log10(fltidata.field('Rp'))
     recvrFlag = fltidata.field('Recovered')
-    
+
     # Get grid dimensions
     logRpMax = np.log10(hdulist[0].header['RPMAX'])
     logRpMin = np.log10(hdulist[0].header['RPMIN'])
@@ -59,7 +59,7 @@ def show_empirical_detection_contour(hdulist):
     logPerMin = np.log10(hdulist[0].header['PERMIN'])
     nInjection = hdulist[1].header['NAXIS2']
     kicWant = hdulist[0].header['KEPLERID']
-    print "KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection)
+    print("KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection))
     # Set bin edge spacing to roughly achieve nWantPerBin
     # injections per bin.  Always have a minimum minNBin bins
     # each dimension
@@ -75,7 +75,7 @@ def show_empirical_detection_contour(hdulist):
     nYBin = nXBin + 1
     # Orbital period is assigned x dimension
     # Planet Radius is assigned y dimension
-    print "X dimen Porb: {0:d} Bins Y dimen Rp: {1:d} Bins".format(nXBin, nYBin)
+    print("X dimen Porb: {0:d} Bins Y dimen Rp: {1:d} Bins".format(nXBin, nYBin))
     # Use numpy histogram2d to return counts of injected signals in 2d grid
     nAll = np.histogram2d(injPeriod, injRp, \
                 bins=(nXBin,nYBin), \
@@ -102,23 +102,23 @@ def show_empirical_detection_contour(hdulist):
     fig, ax, fsd = setup_figure()
     # Define contour levels to show
     uselevels = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95]
-        
-    CS2 = plt.contour(X2, Y2, probdet.T, levels=uselevels, 
-                          linewidth=fsd['datalinewidth'], 
+
+    CS2 = plt.contour(X2, Y2, probdet.T, levels=uselevels,
+                          linewidth=fsd['datalinewidth'],
                           colors=(fsd['myblue'],) * len(uselevels))
-    plt.clabel(CS2, inline=1, fontsize=fsd['labelfontsize'], fmt='%1.2f', 
+    plt.clabel(CS2, inline=1, fontsize=fsd['labelfontsize'], fmt='%1.2f',
                    inline_spacing=10.0, fontweight='ultrabold')
-    CS1 = plt.contourf(X2, Y2, probdet.T, levels=uselevels, cmap=plt.cm.bone)    
-    plt.xlabel('Log10(Period) [day]', fontsize=fsd['labelfontsize'], 
+    CS1 = plt.contourf(X2, Y2, probdet.T, levels=uselevels, cmap=plt.cm.bone)
+    plt.xlabel('Log10(Period) [day]', fontsize=fsd['labelfontsize'],
                    fontweight='heavy')
-    plt.ylabel('Log10(R$_{p}$) [R$_{\oplus}$]', fontsize=fsd['labelfontsize'], 
+    plt.ylabel('Log10(R$_{p}$) [R$_{\oplus}$]', fontsize=fsd['labelfontsize'],
                    fontweight='heavy')
     ax.set_title('KIC: {0:d}'.format(kicWant))
     for axis in ['top','bottom','left','right']:
                 ax.spines[axis].set_linewidth(fsd['plotboxlinewidth'])
                 ax.spines[axis].set_color(fsd['mynearblack'])
-    ax.tick_params('both', labelsize=fsd['tickfontsize'], 
-                       width=fsd['plotboxlinewidth'], 
+    ax.tick_params('both', labelsize=fsd['tickfontsize'],
+                       width=fsd['plotboxlinewidth'],
                        color=fsd['mynearblack'], length=fsd['plotboxlinewidth']*3)
     # Make eps and png hard copy of figure
     plt.savefig(wantFigure+'.png',bbox_inches='tight')
@@ -152,12 +152,12 @@ def show_window_function(hdulist):
     cdppHeadStr = ['RCDP01P5','RCDP02P0','RCDP02P5','RCDP03P0','RCDP03P5',\
                     'RCDP04P5','RCDP05P0','RCDP06P0','RCDP07P5','RCDP09P0', \
                     'RCDP10P5','RCDP12P0','RCDP12P5','RCDP15P0']
-    pulsedurs=np.array([1.5,2.0,2.5,3.0,3.5,4.5,5.0,6.0,7.5,9.0,10.5,12.0,12.5,15.0])                
+    pulsedurs=np.array([1.5,2.0,2.5,3.0,3.5,4.5,5.0,6.0,7.5,9.0,10.5,12.0,12.5,15.0])
     cdpps = np.zeros_like(pulsedurs)
     for idx, hdrstring in enumerate(cdppHeadStr):
         cdpps[idx] = hdulist[0].header[hdrstring]
-        
-    print "KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection)
+
+    print("KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection))
     # We need to find injections that are expected to be in the high
     # SNR regime.  We need to do the selection of targets by injected Rp
     # rather than by MES alone because MES depends upon # of transits
@@ -183,7 +183,7 @@ def show_window_function(hdulist):
     maxNTran = np.min([np.max(nTransits), 10])
     idx = np.where( (nTransits == maxNTran) & (np.isfinite(injDurations)))[0]
     expMinPeriod = np.median(injPeriods[idx])
-    
+
     # Find simple geometric depth [ppm] for 1 Rp [Rearth] planet around
     # a star with this targets size and noise.
     rearthDRsun = 6378137.0/696000000.0
@@ -193,7 +193,7 @@ def show_window_function(hdulist):
     oneEarthMes = depth / useCdpp * np.sqrt(3.0)
     mesRatio = minMES / oneEarthMes
     useRpMin = np.sqrt(mesRatio)
-    print "Use Rp Min [Rearth]: {0:f}".format(useRpMin[0])
+    print("Use Rp Min [Rearth]: {0:f}".format(useRpMin[0]))
 
     # Trim the data outside period and rp range wanted
     idx = np.where((injRps > useRpMin) & (injPeriods > expMinPeriod) & \
@@ -210,7 +210,7 @@ def show_window_function(hdulist):
     nXBin = np.uint32(np.floor(oneDNBin))
     if nXBin < minNBin:
         nXBin = minNBin
-    
+
     # Use numpy histogram to return counts of injected signals in period
     nAll = np.histogram(usePeriods, bins=nXBin, \
                 range=(expMinPeriod,expMaxPeriod), normed=False)[0]
@@ -221,20 +221,20 @@ def show_window_function(hdulist):
     # Window function is number recovered / number injected for each bin
     winFunction = np.double(nPass) / np.double(nAll)
     midx = xedges[:-1] + np.diff(xedges)/2.0
-    print "Kic: {0:d} useN: {1:d} nBin: {2:d}".format(kicWant, useN, len(midx)) 
+    print("Kic: {0:d} useN: {1:d} nBin: {2:d}".format(kicWant, useN, len(midx)))
 
     # Setup figure filename and figures
     wantFigure = 'emp_win_func_{0:09d}'.format(kicWant)
     fig, ax, fsd = setup_figure()
     plt.plot(midx, winFunction, linewidth=fsd['datalinewidth'])
     plt.xlabel('Period [day]', fontsize=fsd['labelfontsize'], fontweight='heavy')
-    plt.ylabel('Window Function', fontsize=fsd['labelfontsize'], 
+    plt.ylabel('Window Function', fontsize=fsd['labelfontsize'],
                     fontweight='heavy')
     ax.set_title('KIC: {0:d}'.format(kicWant))
     for axis in ['top','bottom','left','right']:
                 ax.spines[axis].set_linewidth(fsd['plotboxlinewidth'])
                 ax.spines[axis].set_color(fsd['mynearblack'])
-    ax.tick_params('both', labelsize=fsd['tickfontsize'], width=fsd['plotboxlinewidth'], 
+    ax.tick_params('both', labelsize=fsd['tickfontsize'], width=fsd['plotboxlinewidth'],
                        color=fsd['mynearblack'], length=fsd['plotboxlinewidth']*3)
     # Make eps and png hard copy of figure
     plt.savefig(wantFigure+'.png',bbox_inches='tight')
@@ -260,7 +260,7 @@ def show_detection_efficiency(hdulist):
     perMin = hdulist[0].header['PERMIN']
     nInjection = hdulist[1].header['NAXIS2']
     kicWant = hdulist[0].header['KEPLERID']
-    print "KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection)
+    print("KIC: {0:09d} Num Inj: {1:d}".format(kicWant, nInjection))
     # We need to find injections that pass the window function so
     # the detection efficiency is not contaminated by injections
     # due to window function effects.  Also avoid injections
@@ -294,14 +294,14 @@ def show_detection_efficiency(hdulist):
     nBins = np.round((maxMes - minMes) / delMes)
     xedges = np.linspace(minMes, maxMes, nBins+1)
     midx = xedges[:-1] + np.diff(xedges)/2.0
-    print "Kic: {0:d} useN: {1:d} nBin: {2:d}".format(kicWant, useN, len(midx)) 
+    print("Kic: {0:d} useN: {1:d} nBin: {2:d}".format(kicWant, useN, len(midx)))
     detectionEff = np.zeros_like(midx)
     detectionEffN = np.zeros_like(midx)
     if idxKeep.size > 5:
         binidx = np.digitize(expMes, xedges)
         for i in np.arange(1,len(xedges)):
             idxInBin = np.where(binidx == i)[0]
-            if idxInBin.size > 0: 
+            if idxInBin.size > 0:
                 curPc = recvrFlag[idxInBin]
                 idxPcInBin = np.where(curPc == 1)[0]
                 detectionEff[i-1] = np.double(idxPcInBin.size) / np.double(idxInBin.size)
@@ -310,20 +310,20 @@ def show_detection_efficiency(hdulist):
             else:
                 detectionEff[i-1] = 1.0
                 detectionEffN[i-1] = 0
-            print "Kic: {0:d} Mes: {1:f} DetEff: {2:f} NinBin: {3:f}".format( \
-                        kicWant, midx[i-1], detectionEff[i-1], detectionEffN[i-1])
+            print("Kic: {0:d} Mes: {1:f} DetEff: {2:f} NinBin: {3:f}".format( \
+                        kicWant, midx[i-1], detectionEff[i-1], detectionEffN[i-1]))
     # Setup figure filename and figures
     wantFigure = 'emp_det_eff_{0:09d}'.format(kicWant)
     fig, ax, fsd = setup_figure()
     plt.plot(midx, detectionEff, linewidth=fsd['datalinewidth'])
     plt.xlabel('Expected MES', fontsize=fsd['labelfontsize'], fontweight='heavy')
-    plt.ylabel('Detection Efficiency', fontsize=fsd['labelfontsize'], 
+    plt.ylabel('Detection Efficiency', fontsize=fsd['labelfontsize'],
                     fontweight='heavy')
     ax.set_title('KIC: {0:d}'.format(kicWant))
     for axis in ['top','bottom','left','right']:
                 ax.spines[axis].set_linewidth(fsd['plotboxlinewidth'])
                 ax.spines[axis].set_color(fsd['mynearblack'])
-    ax.tick_params('both', labelsize=fsd['tickfontsize'], width=fsd['plotboxlinewidth'], 
+    ax.tick_params('both', labelsize=fsd['tickfontsize'], width=fsd['plotboxlinewidth'],
                        color=fsd['mynearblack'], length=fsd['plotboxlinewidth']*3)
     # Make hard copy of figures
     plt.savefig(wantFigure+'.png',bbox_inches='tight')
@@ -353,7 +353,7 @@ def setup_figure():
     labelcolor = myblack
     fig = plt.figure(figsize=(8,8), facecolor=bkgcolor)
     ax = plt.gca()
-    
+
     figstydict={'labelfontsize':labelfontsize, 'tickfontsize':tickfontsize, \
                 'datalinewidth':datalinewidth, 'plotboxlinewidth':plotboxlinewidth, \
                 'markersize':markersize, 'bkgcolor':bkgcolor, \
@@ -362,8 +362,8 @@ def setup_figure():
                 'myblue':myblue, 'myred':myred, 'myorange':myorange, \
                 'myskyblue':myskyblue, 'myyellow':myyellow, 'mypink':mypink}
     return fig, ax, figstydict
-          
-    
+
+
 if __name__ == "__main__":
     # To run program 'python Kepler-FLTI.py' at command line
     # fitsfile kplr007702838_dr25_5008_flti.fits also needs to be available
@@ -372,12 +372,12 @@ if __name__ == "__main__":
     hdulist = fits.open(fitsfile,mode='readonly')
 
     show_basic_fits_data(hdulist)
-    
+
     show_empirical_detection_contour(hdulist)
-    
+
     show_window_function(hdulist)
-    
-    show_detection_efficiency(hdulist)    
-    
-    
+
+    show_detection_efficiency(hdulist)
+
+
     hdulist.close()
